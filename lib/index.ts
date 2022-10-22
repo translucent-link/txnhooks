@@ -28,6 +28,7 @@ const run = async () => {
 
   try {
     const configFilePath = process.env.CONFIG_FILE_PATH || './config.yaml';
+    logger.info(`Loading config from ${configFilePath}`);
     const config = new Config(await loadConfig(configFilePath));
     logger.info('Config loaded');
     logger.info('Notfications will be sent to ' + config.webhookURL);
@@ -37,7 +38,7 @@ const run = async () => {
       const chain = config.findChainById(contractsOnChain.chainId);
       if (chain) {
         logger.info(`Processing Chain: ${chain.network.name}`)
-        const provider = new ethers.providers.JsonRpcProvider( chain.rpcWS, chain.network )
+        const provider = new ethers.providers.JsonRpcProvider( chain.rpcHTTPS, chain.network )
         for (const contractDefn of contractsOnChain.contracts) {
           logger.info(`Processing Contract: ${contractDefn.name}`)
 
