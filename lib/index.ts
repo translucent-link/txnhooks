@@ -3,6 +3,7 @@ import YAML from 'yaml'
 import { promises as fsPromises } from 'fs';
 import { Config, ABI } from './config';
 import logger from "./logger";
+import axios from 'axios';
 
 const loadConfig = async (configFilePath: string): Promise<Config> => {
   const configYaml = await fsPromises.readFile(configFilePath, 'utf8');
@@ -21,8 +22,7 @@ const contractEventsFromABI = (abi: ABI): string[] => {
   return events;
 }
 
-const callWebhook = async (url: string, data: any) => fetch(url, {method: 'POST', body: JSON.stringify(data), headers: {'Content-Type': 'application/json'}})
-
+const callWebhook = async (url: string, data: any) => axios({method: 'post', url,  data, headers: {'Content-Type': 'application/json'}})
 
 const run = async () => {
 
@@ -37,7 +37,7 @@ const run = async () => {
     for (const contractsOnChain of config.allContracts) {
       const chain = config.findChainById(contractsOnChain.chainId);
       if (chain) {
-        logger.info(`Processing Chain: ${chain.network.name}`)
+        logger.info(`Processing Chain: ${chain.network.name} using ${chain.rpcWS}`)
         const provider = new ethers.providers.JsonRpcProvider( chain.rpcHTTPS, chain.network )
         for (const contractDefn of contractsOnChain.contracts) {
           logger.info(`Processing Contract: ${contractDefn.name}`)
